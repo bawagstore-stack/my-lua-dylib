@@ -1,0 +1,28 @@
+name: Build macOS Dylib
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Install Lua
+      run: brew install lua
+
+    - name: Compile Dylib
+      run: |
+        g++ -dynamiclib -fPIC -std=c++11 -o mylib.dylib main.c \
+          -I$(brew --prefix lua)/include/lua \
+          -L$(brew --prefix lua)/lib -llua
+
+    - name: Upload Dylib Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: mylib-dylib
+        path: mylib.dylib
