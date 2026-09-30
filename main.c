@@ -1,16 +1,19 @@
 #include <stdio.h>
+#include <unistd.h>
+#include <pthread.h>
 
-// 👇 Is tarah wrap karna lazmi hai
 extern "C" {
     #include <lua.h>
     #include <lualib.h>
     #include <lauxlib.h>
 }
 
-__attribute__((constructor))
-void initializer() {
+void* run_lua_thread(void* arg) {
+    // 5 seconds ka wait taaki game memory load ho jaye
+    sleep(5);
+
     lua_State *L = luaL_newstate();
-    if (L == NULL) return;
+    if (L == NULL) return NULL;
     
     luaL_openlibs(L);
 
@@ -51,4 +54,12 @@ void initializer() {
     }
 
     lua_close(L);
+    return NULL;
+}
+
+__attribute__((constructor))
+void initializer() {
+    // Game crash na ho isliye alag background thread me 5s delay chalega
+    pthread_t thread;
+    pthread_create(&thread, NULL, run_lua_thread, NULL);
 }
