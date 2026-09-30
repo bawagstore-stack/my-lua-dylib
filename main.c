@@ -1,7 +1,11 @@
 #include <stdio.h>
-#include <lua.h>
-#include <lualib.h>
-#include <lauxlib.h>
+
+// 👇 Is tarah wrap karna lazmi hai
+extern "C" {
+    #include <lua.h>
+    #include <lualib.h>
+    #include <lauxlib.h>
+}
 
 __attribute__((constructor))
 void initializer() {
@@ -10,7 +14,6 @@ void initializer() {
     
     luaL_openlibs(L);
 
-    // Aapka Poora Lua Code Yahan Embed Hai
     const char *lua_code = R"(
         local logic_profile_get_wrap = require("client.network.Protocol.FriendApplyHandler")
 
@@ -41,9 +44,7 @@ void initializer() {
         end
     )";
 
-    // Code Run Karne Ke Liye
     if (luaL_dostring(L, lua_code) != LUA_OK) {
-        // Agar koi error aata hai to handle karega
         const char *err = lua_tostring(L, -1);
         printf("Lua Error: %s\n", err);
         lua_pop(L, 1);
